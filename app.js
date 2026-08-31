@@ -322,12 +322,35 @@ class CailamayPage {
     this.startFirstFramePipeline(i);
   }
 
+  // Fires on every 'timeupdate' of whichever slide is currently active.
+  // Once that clip is within PREP_LOOKAHEAD seconds of its own natural
+  // end, this starts the SUCCESSOR's full pipeline (load -> play ->
+  // confirm frame) right away rather than waiting for 'ended' - by the
+  // time advanceSlide() runs, the next clip is typically already playing
+  // with a confirmed frame, so the crossfade begins with zero visible
+  // delay instead of the pipeline only starting once the outgoing clip
+  // had already finished. Guarded by startFirstFramePipeline's own
+  // pipelineStarted flag, so calling this on every tick is harmless.
+  onSlideTimeUpdate(i) {
+    if (this.reduced || i !== this.activeSlide) return;
+    const video = this.videos[i];
+    if (!video || !isFinite(video.duration) || video.duration <= 0) return;
+    if (video.duration - video.currentTime > this.PREP_LOOKAHEAD) return;
+    const next = (i + 1) % this.slides.length;
+    const st = this.videoState[next];
+    if (!st || st.status === 'failed' || st.pipelineStarted) return;
+    this.loadSlide(next);
+    this.startFirstFramePipeline(next);
+  }
+
   // Moves the slideshow toward the next of the 8 slides, looping back to
   // slide 0 after the last one - but only actually reveals it once a real
   // rendered frame is confirmed. Until then the outgoing clip simply stays
   // visible on its own last frame (it plays once, without looping, and a
   // finished HTML video holds its final frame rather than reverting to its
-  // poster) - never an unready slide's poster, never a blank layer.
+  // poster) - never an unready slide's poster, never a blank layer. In
+  // practice the successor's pipeline was usually already started ahead of
+  // time by onSlideTimeUpdate() above.
   advanceSlide() {
     if (this.reduced) return;
     const n = this.slides.length;
@@ -394,7 +417,7 @@ class CailamayPage {
 
     // Each outgoing video gets its own pause-timer slot (not a single
     // shared one) - otherwise a transition arriving before the previous
-    // one's 950ms elapsed would cancel that earlier video's pause/reset.
+    // one's 600ms elapsed would cancel that earlier video's pause/reset.
     if (prevSt) {
       clearTimeout(prevSt.pauseTimer);
       prevSt.pauseTimer = setTimeout(() => {
@@ -410,7 +433,7 @@ class CailamayPage {
           prevSt.pipelineStarted = false;
           prevSt.firstFramePresented = false;
         }
-      }, 950); // just past [data-slide]'s own 900ms opacity transition
+      }, 600); // just past [data-slide]'s own 550ms opacity transition
     }
 
     this.loadSlide((next + 1) % this.slides.length); // preload one slide ahead - never the whole set
@@ -449,6 +472,7 @@ class CailamayPage {
 
     video.addEventListener('error', () => this.onSlideVideoError(0));
     video.addEventListener('ended', () => this.advanceSlide());
+    video.addEventListener('timeupdate', () => this.onSlideTimeUpdate(0));
     video.addEventListener('stalled', () => console.warn('[hero-slideshow] slide 0 stalled (slow/interrupted network)'));
 
     const confirmFrame = () => {
@@ -560,6 +584,10 @@ class CailamayPage {
     this.activeSlide = 0;
     this.lastDot = -1;
     this.lastW = null;
+    // How many seconds before the active clip's natural end its successor
+    // starts its own full pipeline (load -> play -> confirm frame), not
+    // just data buffering - see onSlideTimeUpdate().
+    this.PREP_LOOKAHEAD = 0.8;
 
     this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.applyResponsive();
@@ -574,6 +602,7 @@ class CailamayPage {
       if (i === 0) return; // slide 0 is the hero video, wired up separately in initHero()
       v.addEventListener('error', () => this.onSlideVideoError(i));
       v.addEventListener('ended', () => this.advanceSlide());
+      v.addEventListener('timeupdate', () => this.onSlideTimeUpdate(i));
       v.addEventListener('stalled', () => console.warn('[hero-slideshow] slide ' + i + ' stalled (slow/interrupted network)'));
       v.addEventListener('waiting', () => console.warn('[hero-slideshow] slide ' + i + ' buffering'));
     });
