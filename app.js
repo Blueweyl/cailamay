@@ -221,9 +221,9 @@ class CailamayPage {
     if (this.soundBtn) this.soundBtn.addEventListener('click', () => this.toggleSound());
   }
 
-  // ---- Scroll cinema (hero video + 7 scroll-controlled scenes) ----
+  // ---- Hero slideshow (8 clips autoplay/cross-fade one after another) ----
 
-  loadLeg(i) {
+  loadSlide(i) {
     const video = this.videos[i];
     const st = this.videoState[i];
     if (!video || !st || st.status !== 'idle') return;
@@ -232,88 +232,100 @@ class CailamayPage {
     st.status = 'loading';
     // Direct relative src (not fetch->blob->objectURL): lets the browser
     // stream and byte-range-seek the file natively instead of holding the
-    // whole clip in memory before anything can play. preload="metadata" in
-    // the markup keeps this from pulling any actual frame data until now.
+    // whole clip in memory before anything can play. preload="none" in the
+    // markup keeps this from pulling any actual frame data until now.
     video.src = src;
     video.load();
   }
 
-  onVideoReady(i) {
+  onSlideVideoReady(i) {
     const st = this.videoState[i];
-    if (!st || st.status === 'failed' || st.status === 'ready') return;
-    const video = this.videos[i];
-    st.duration = video.duration || 8;
+    if (!st || st.status === 'failed') return;
     st.status = 'ready';
-    if (i === this.activeVideoIdx || st.pendingPlay) {
+    if (i === this.activeSlide && st.pendingPlay) {
       st.pendingPlay = false;
-      this.safePlayVideo(video, i);
-    } else {
-      // Loaded ahead of time but not the active scene yet. Safari/iOS won't
-      // paint a frame on a video that has never played, even when muted, so
-      // prime it with a silent play + immediate pause.
-      const primed = video.play();
-      if (primed && primed.then) primed.then(() => { if (i !== this.activeVideoIdx) video.pause(); }).catch(() => {});
+      this.safePlayVideo(this.videos[i], i);
     }
   }
 
-  onVideoError(i) {
+  onSlideVideoError(i) {
     const st = this.videoState[i] || (this.videoState[i] = {});
     st.status = 'failed';
     st.pendingPlay = false;
-    const video = this.videos[i];
-    console.error('[cinema] leg ' + i + ' video failed to load (' + (video && video.dataset.vsrc) + '); its still poster remains in place permanently.');
+    console.error('[hero-slideshow] slide ' + i + ' video failed to load (' + (this.videos[i] && this.videos[i].dataset.vsrc) + '); its still poster remains in place and the cycle skips past it.');
+    if (i === this.activeSlide) {
+      clearTimeout(this._advanceTimer);
+      this._advanceTimer = setTimeout(() => this.advanceSlide(), 1500);
+    }
   }
 
   safePlayVideo(video, i) {
     const playPromise = video.play();
     if (playPromise && playPromise.catch) {
       playPromise.catch((err) => {
-        console.warn('[cinema] leg ' + i + ' play() was rejected; its still poster remains visible instead.', err);
+        console.warn('[hero-slideshow] slide ' + i + ' play() was rejected; its still poster remains visible instead.', err);
+        if (i === this.activeSlide) {
+          clearTimeout(this._advanceTimer);
+          this._advanceTimer = setTimeout(() => this.advanceSlide(), 4000);
+        }
       });
     }
   }
 
-  playActiveVideo() {
-    const i = this.activeVideoIdx;
-    const video = this.videos[i];
-    const st = this.videoState[i];
-    if (!video || !st) return;
-    if (st.status === 'ready') this.safePlayVideo(video, i);
-    else if (st.status !== 'failed') { st.pendingPlay = true; this.loadLeg(i); }
+  // Moves the slideshow to the next of the 8 slides, looping back to slide
+  // 0 after the last one. Triggered by the active clip's 'ended' event (the
+  // normal path) or, if a clip fails/never starts, by a short fallback
+  // timer so one broken file can't stall the whole cycle.
+  advanceSlide() {
+    if (this.reduced) return;
+    clearTimeout(this._advanceTimer);
+    const n = this.slides.length;
+    const prev = this.activeSlide;
+    const next = (prev + 1) % n;
+
+    const prevVideo = this.videos[prev];
+    if (prevVideo) {
+      prevVideo.pause();
+      try { prevVideo.currentTime = 0; } catch (e) {}
+    }
+
+    this.slides[prev].style.opacity = '0';
+    this.slides[next].style.opacity = '1';
+    this.activeSlide = next;
+    this.updateDots(next);
+
+    const nextVideo = this.videos[next];
+    const st = this.videoState[next];
+    if (nextVideo && st) {
+      if (st.status === 'ready') this.safePlayVideo(nextVideo, next);
+      else if (st.status === 'idle') { st.pendingPlay = true; this.loadSlide(next); }
+      else if (st.status === 'loading') st.pendingPlay = true;
+      else if (st.status === 'failed') { this._advanceTimer = setTimeout(() => this.advanceSlide(), 1500); }
+    }
+
+    this.loadSlide((next + 1) % n); // preload one slide ahead - never the whole set
   }
 
-  // Whichever leg is closest to fully visible actually plays (looping) via
-  // play()/pause(); every other clip stays paused. Only the active scene
-  // plus the next one or two are ever loaded ahead of time.
-  hydrateVideos() {
-    if (!this.videos || this.videos.length <= 1 || this.reduced) return;
-    const n = this.legs.length;
-    const active = this.activeLeg;
-
-    if (active !== this.activeVideoIdx) {
-      const prev = this.videos[this.activeVideoIdx];
-      if (prev && !prev.paused) prev.pause();
-      this.activeVideoIdx = active;
-      if (active > 0) this.playActiveVideo(); // index 0 is the hero; it manages its own playback
-    }
-
-    for (let k = 0; k <= 2; k++) {
-      const idx = active + k;
-      if (idx >= 1 && idx <= n - 1) this.loadLeg(idx);
-    }
-
-    this.videos.forEach((video, i) => {
-      if (i === 0 || i === active) return;
-      if (!video.paused) video.pause();
+  updateDots(active) {
+    if (active === this.lastDot) return;
+    this.lastDot = active;
+    this.dots.forEach((dot, i) => {
+      const pip = dot.querySelector('[data-pip]');
+      const label = dot.querySelector('[data-label]');
+      if (pip) { pip.style.background = i === active ? '#D8945B' : 'rgba(246,242,235,0.28)'; pip.style.transform = i === active ? 'scale(1.7)' : 'scale(1)'; }
+      if (label) {
+        label.style.opacity = i === active ? '1' : '0';
+        if (i === active) { clearTimeout(this._lt); this._lt = setTimeout(() => { label.style.opacity = '0'; }, 1600); }
+      }
     });
   }
 
   initHero() {
     const video = this.heroVideo;
     if (!video) return;
-    video.loop = true;
     video.muted = true; video.defaultMuted = true; video.volume = 0;
     video.playsInline = true; video.setAttribute('playsinline', '');
+    this.videoState[0] = { status: 'loading' };
 
     if (this.reduced) {
       video.removeAttribute('autoplay');
@@ -321,21 +333,17 @@ class CailamayPage {
       return;
     }
 
-    video.addEventListener('error', () => {
-      console.error('[hero] leg1.mp4 failed to load (' + (video.currentSrc || video.src) + '); keeping poster in place.', video.error);
-    });
+    video.addEventListener('error', () => this.onSlideVideoError(0));
+    video.addEventListener('ended', () => this.advanceSlide());
     video.addEventListener('canplay', () => {
       video.style.opacity = '1';
       this.reportHeroTransfer();
-    }, { once: true });
-    video.addEventListener('stalled', () => console.warn('[hero] leg1.mp4 stalled (slow/interrupted network)'));
+      const st = this.videoState[0];
+      if (st) st.status = 'ready';
+    });
+    video.addEventListener('stalled', () => console.warn('[hero-slideshow] slide 0 stalled (slow/interrupted network)'));
 
-    const playPromise = video.play();
-    if (playPromise && playPromise.catch) {
-      playPromise.catch((err) => {
-        console.warn('[hero] autoplay was rejected; showing poster instead.', err);
-      });
-    }
+    this.safePlayVideo(video, 0);
   }
 
   reportHeroTransfer() {
@@ -353,25 +361,28 @@ class CailamayPage {
     if (!report()) setTimeout(report, 300);
   }
 
-  hydrate() {
-    this.activeLeg = Math.round(this.eased * (this.legs.length - 1));
-    this.hydrateVideos();
-    if (!this.deferred || !this.deferred.length) return;
-    const vh = window.innerHeight;
-    this.deferred = this.deferred.filter((el) => {
-      const legHost = el.closest('[data-leg]');
-      let near;
-      if (legHost) {
-        near = Math.abs(Number(legHost.dataset.leg) - this.activeLeg) <= 1;
-      } else {
-        const r = el.getBoundingClientRect();
-        near = r.top < vh * 2.2 && r.bottom > -vh;
-      }
-      if (!near) return true;
-      el.setAttribute('src', el.dataset.src);
-      el.removeAttribute('data-src');
-      return false;
-    });
+  // Nav solid-on-scroll + the gallery's parallax layers - the only things
+  // tied to the page's own scroll position now that the hero is a normal,
+  // fixed-height section instead of a scroll-scrubbed one.
+  paintScroll() {
+    const y = window.scrollY || window.pageYOffset || 0;
+    if (this.nav) {
+      const solid = y > 40;
+      this.nav.style.background = solid ? 'rgba(16,22,21,0.72)' : 'transparent';
+      this.nav.style.backdropFilter = solid ? 'blur(10px)' : 'blur(0px)';
+      this.nav.style.borderBottomColor = solid ? 'rgba(234,226,213,0.14)' : 'rgba(234,226,213,0)';
+      const padX = this.navPadX || '42px';
+      this.nav.style.padding = (solid ? '17px ' : '26px ') + padX;
+    }
+    if (!this.reduced) {
+      const vh = window.innerHeight;
+      this.pxs.forEach((el) => {
+        const r = el.parentElement.getBoundingClientRect();
+        if (r.bottom < -200 || r.top > vh + 200) return;
+        const c = (r.top + r.height / 2 - vh / 2) / vh;
+        el.style.transform = 'translate3d(0,' + (c * parseFloat(el.dataset.px) * -22).toFixed(1) + 'px,0)';
+      });
+    }
   }
 
   applyResponsive() {
@@ -380,12 +391,10 @@ class CailamayPage {
     this.lastW = w;
     const narrow = w < 900;
     const mid = w < 1200;
-    const compact = w <= 1024;
-    if (this.legs) this.legs.forEach((el) => { el.style.inset = compact ? '0%' : '-4%'; });
-    if (this.videos) this.videos.forEach((el) => { el.style.objectFit = compact ? 'contain' : 'cover'; });
     document.querySelectorAll('[data-resp]').forEach((el) => {
       const kind = el.dataset.resp;
       if (kind === 'two') el.style.gridTemplateColumns = narrow ? 'minmax(0,1fr)' : 'minmax(0,1fr) minmax(0,1fr)';
+      if (kind === 'tour') el.style.gridTemplateColumns = narrow ? 'minmax(0,1fr)' : 'minmax(0,340px) minmax(0,1fr)';
       if (kind === 'reserve') el.style.gridTemplateColumns = narrow ? 'minmax(0,1fr)' : 'minmax(0,1fr) minmax(0,420px)';
       if (kind === 'three') el.style.gridTemplateColumns = narrow ? 'minmax(0,1fr)' : 'repeat(3,minmax(0,1fr))';
       if (kind === 'footer') el.style.gridTemplateColumns = narrow ? 'minmax(0,1fr)' : (mid ? 'repeat(2,minmax(0,1fr))' : 'minmax(0,2fr) repeat(3,minmax(0,1fr))');
@@ -399,7 +408,7 @@ class CailamayPage {
     });
     const pad = narrow ? '20px' : '42px';
     this.navPadX = pad;
-    document.querySelectorAll('[data-resppad-x], [data-hero], #stay, #experience > div, #reserve, footer, #gallery > div, #gallery [style*="grid-template-columns:repeat(12"]').forEach((el) => { el.style.paddingLeft = pad; el.style.paddingRight = pad; });
+    document.querySelectorAll('[data-resppad-x], #tour, #stay, #experience > div, #reserve, footer, #gallery > div, #gallery [style*="grid-template-columns:repeat(12"]').forEach((el) => { el.style.paddingLeft = pad; el.style.paddingRight = pad; });
     if (this.nav) this.nav.style.paddingLeft = pad;
     if (this.nav) this.nav.style.paddingRight = pad;
     const menu = document.querySelector('[data-navmenu]');
@@ -410,140 +419,44 @@ class CailamayPage {
     if (!belowMobileBreak && this.state.mobileNavOpen) this.setMobileNav(false);
   }
 
-  measure() {
-    const r = this.cinema.getBoundingClientRect();
-    const span = Math.max(1, this.cinema.offsetHeight - window.innerHeight);
-    this.target = Math.min(1, Math.max(0, -r.top / span));
-    this.heroP = Math.min(1, Math.max(0, -r.top / (window.innerHeight * 0.75)));
-  }
-
-  tick(ts) {
-    if (typeof ts === 'number') {
-      this.raf = requestAnimationFrame(this.tick);
-      if (this.timer) { clearInterval(this.timer); this.timer = 0; }
-    }
-    this.applyResponsive();
-    const now = (window.performance && performance.now) ? performance.now() : Date.now();
-    const dt = Math.min(250, Math.max(1, now - (this.lastT || now)));
-    this.lastT = now;
-    const top = this.cinema.getBoundingClientRect().top;
-    if (top !== this.lastTop) { this.lastTop = top; this.measure(); }
-    else if (this.eased === this.target) return;
-    const k = this.reduced ? 1 : Math.min(1, 1 - Math.exp(-dt / 110));
-    this.eased += (this.target - this.eased) * k;
-    if (Math.abs(this.target - this.eased) < 0.0004) this.eased = this.target;
-    this.hydrate();
-    this.paint();
-  }
-
-  paint() {
-    const p = this.eased;
-    const n = this.legs.length;
-    const t = p * (n - 1);
-
-    for (let i = 0; i < n; i++) {
-      const d = t - i;
-      const o = Math.max(0, Math.min(1, 1 - Math.abs(d) / 1));
-      const el = this.legs[i];
-      el.style.opacity = o.toFixed(3);
-      if (!this.reduced) {
-        const fwd = Math.max(-1, Math.min(1, d));
-        el.style.transform = 'scale(' + (1.035 + fwd * 0.035).toFixed(4) + ') translate3d(0,' + (fwd * -1.2).toFixed(2) + '%,0)';
-      }
-      const on = o > 0.002;
-      el.style.visibility = on ? 'visible' : 'hidden';
-      el.style.willChange = on ? 'opacity,transform' : 'auto';
-    }
-
-    if (this.hero) {
-      const h = 1 - this.heroP;
-      this.hero.style.opacity = h.toFixed(3);
-      this.hero.style.transform = 'translate3d(0,' + (this.heroP * -34).toFixed(1) + 'px,0)';
-      this.hero.style.letterSpacing = (this.heroP * 0.6).toFixed(3) + 'px';
-      this.hero.style.visibility = h > 0.01 ? 'visible' : 'hidden';
-    }
-    if (this.rail) this.rail.style.opacity = Math.min(1, Math.max(0, (this.heroP - 0.35) * 2.2)).toFixed(3);
-    if (this.outscrim) this.outscrim.style.opacity = Math.max(0, (p - 0.94) / 0.06 * 0.55).toFixed(3);
-    if (this.nav) {
-      const solid = p > 0.02;
-      this.nav.style.background = solid ? 'rgba(16,22,21,0.72)' : 'transparent';
-      this.nav.style.backdropFilter = solid ? 'blur(10px)' : 'blur(0px)';
-      this.nav.style.borderBottomColor = solid ? 'rgba(234,226,213,0.14)' : 'rgba(234,226,213,0)';
-      const padX = this.navPadX || '42px';
-      this.nav.style.padding = (solid ? '17px ' : '26px ') + padX;
-    }
-
-    const active = this.activeLeg;
-    if (active !== this.lastLeg) {
-      this.lastLeg = active;
-      this.dots.forEach((dot, i) => {
-        const pip = dot.querySelector('[data-pip]');
-        const label = dot.querySelector('[data-label]');
-        if (pip) { pip.style.background = i === active ? '#D8945B' : 'rgba(246,242,235,0.28)'; pip.style.transform = i === active ? 'scale(1.7)' : 'scale(1)'; }
-        if (label) {
-          label.style.opacity = i === active ? '1' : '0';
-          if (i === active) { clearTimeout(this._lt); this._lt = setTimeout(() => { label.style.opacity = '0'; }, 1600); }
-        }
-      });
-    }
-
-    if (!this.reduced) {
-      const vh = window.innerHeight;
-      this.pxs.forEach((el) => {
-        const r = el.parentElement.getBoundingClientRect();
-        if (r.bottom < -200 || r.top > vh + 200) return;
-        const c = (r.top + r.height / 2 - vh / 2) / vh;
-        el.style.transform = 'translate3d(0,' + (c * parseFloat(el.dataset.px) * -22).toFixed(1) + 'px,0)';
-      });
-    }
-  }
-
   initCinema() {
-    const root = document.querySelector('[data-cinema]');
+    const root = document.querySelector('[data-hero-slideshow]');
     if (!root) return;
-    this.cinema = root;
+    this.heroRoot = root;
     this.nav = document.querySelector('[data-nav]');
-    this.hero = root.querySelector('[data-hero]');
     this.rail = root.querySelector('[data-rail]');
-    this.outscrim = root.querySelector('[data-outscrim]');
-    this.legs = Array.from(root.querySelectorAll('[data-leg]'));
+    this.slides = Array.from(root.querySelectorAll('[data-slide]'));
     this.dots = this.rail ? Array.from(this.rail.querySelectorAll('[data-dot]')) : [];
     this.pxs = Array.from(document.querySelectorAll('[data-px]'));
-    this.deferred = Array.from(document.querySelectorAll('[data-src]'));
     this.videos = Array.from(root.querySelectorAll('[data-vid]'));
     this.heroVideo = root.querySelector('[data-hero-video]');
     this.videoState = {};
-
-    root.style.height = (this.legs.length * 95) + 'vh'; // legHeight, fixed at the prototype's default
+    this.activeSlide = 0;
+    this.lastDot = -1;
+    this.lastW = null;
 
     this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    this.target = 0; this.eased = 0; this.lastLeg = -1; this.lastTop = null; this.lastW = null;
-    this.activeVideoIdx = 0; this.activeLeg = 0;
-    this.tick = this.tick.bind(this);
     this.applyResponsive();
-    this.measure();
-    this.eased = this.target;
-    this.lastT = 0;
+
     this.videos.forEach((v, i) => {
       v.muted = true; v.defaultMuted = true; v.volume = 0;
       v.playsInline = true; v.setAttribute('playsinline', '');
-      v.loop = true;
       this.videoState[i] = { status: 'idle' };
-      if (i === 0) return; // leg 0 is the hero video, wired up separately in initHero()
-      v.addEventListener('error', () => this.onVideoError(i));
-      v.addEventListener('canplay', () => this.onVideoReady(i));
-      v.addEventListener('stalled', () => console.warn('[cinema] leg ' + i + ' stalled (slow/interrupted network)'));
-      v.addEventListener('waiting', () => console.warn('[cinema] leg ' + i + ' buffering'));
+      if (i === 0) return; // slide 0 is the hero video, wired up separately in initHero()
+      v.addEventListener('error', () => this.onSlideVideoError(i));
+      v.addEventListener('canplay', () => this.onSlideVideoReady(i));
+      v.addEventListener('ended', () => this.advanceSlide());
+      v.addEventListener('stalled', () => console.warn('[hero-slideshow] slide ' + i + ' stalled (slow/interrupted network)'));
+      v.addEventListener('waiting', () => console.warn('[hero-slideshow] slide ' + i + ' buffering'));
     });
+
     this.initHero();
-    this.hydrate();
-    this.paint();
-    if (!this.reduced) {
-      const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 500));
-      idle(() => this.loadLeg(3));
-    }
-    this.raf = requestAnimationFrame(this.tick);
-    this.timer = setInterval(this.tick, 60);
+    this.updateDots(0);
+    if (!this.reduced) this.loadSlide(1); // preload the next slide right away; never the whole set
+
+    window.addEventListener('scroll', () => this.paintScroll(), { passive: true });
+    window.addEventListener('resize', () => this.applyResponsive());
+    this.paintScroll();
   }
 
   init() {
