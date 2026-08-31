@@ -233,77 +233,187 @@ class CailamayPage {
     // Direct relative src (not fetch->blob->objectURL): lets the browser
     // stream and byte-range-seek the file natively instead of holding the
     // whole clip in memory before anything can play. preload="none" in the
-    // markup keeps this from pulling any actual frame data until now.
+    // markup keeps this from pulling any actual frame data until now. This
+    // only ever buffers the file - it does NOT start playback (see
+    // startFirstFramePipeline for that), so preloading the next slide ahead
+    // of its transition never advances it early.
     video.src = src;
     video.load();
   }
 
-  onSlideVideoReady(i) {
-    const st = this.videoState[i];
-    if (!st || st.status === 'failed') return;
-    st.status = 'ready';
-    if (i === this.activeSlide && st.pendingPlay) {
-      st.pendingPlay = false;
-      this.safePlayVideo(this.videos[i], i);
-    }
-  }
-
   onSlideVideoError(i) {
-    const st = this.videoState[i] || (this.videoState[i] = {});
+    const st = this.videoState[i] || (this.videoState[i] = { status: 'idle', firstFramePresented: false, playRequested: false, pipelineStarted: false, readyCallbacks: [] });
     st.status = 'failed';
-    st.pendingPlay = false;
-    console.error('[hero-slideshow] slide ' + i + ' video failed to load (' + (this.videos[i] && this.videos[i].dataset.vsrc) + '); its still poster remains in place and the cycle skips past it.');
-    if (i === this.activeSlide) {
-      clearTimeout(this._advanceTimer);
-      this._advanceTimer = setTimeout(() => this.advanceSlide(), 1500);
-    }
+    st.readyCallbacks = [];
+    console.error('[hero-slideshow] slide ' + i + ' video failed to load (' + (this.videos[i] && this.videos[i].dataset.vsrc) + '); the cycle fails over to the next candidate instead of ever exposing its poster.');
+    if (this._pendingNext === i) this.retargetAdvance(i);
   }
 
+  // Handles play() promise rejection without ever throwing. If this was the
+  // slide we were trying to transition to, that's treated exactly like a
+  // load failure - fail over to the next candidate.
   safePlayVideo(video, i) {
     const playPromise = video.play();
     if (playPromise && playPromise.catch) {
       playPromise.catch((err) => {
-        console.warn('[hero-slideshow] slide ' + i + ' play() was rejected; its still poster remains visible instead.', err);
-        if (i === this.activeSlide) {
-          clearTimeout(this._advanceTimer);
-          this._advanceTimer = setTimeout(() => this.advanceSlide(), 4000);
-        }
+        console.warn('[hero-slideshow] slide ' + i + ' play() was rejected.', err);
+        if (this._pendingNext === i) this.onSlideVideoError(i);
       });
     }
   }
 
-  // Moves the slideshow to the next of the 8 slides, looping back to slide
-  // 0 after the last one. Triggered by the active clip's 'ended' event (the
-  // normal path) or, if a clip fails/never starts, by a short fallback
-  // timer so one broken file can't stall the whole cycle.
-  advanceSlide() {
-    if (this.reduced) return;
-    clearTimeout(this._advanceTimer);
-    const n = this.slides.length;
-    const prev = this.activeSlide;
-    const next = (prev + 1) % n;
+  // Wires up (once per slide) the listeners that confirm a slide has
+  // actually presented a real rendered frame - not merely that its file
+  // has loaded. requestVideoFrameCallback is the precise "a frame has been
+  // painted" signal the crossfade waits on; without it the fallback is
+  // loadeddata/canplay (readyState >= 2) plus an observed 'playing' event
+  // plus a two-rAF delay so the compositor has actually painted.
+  startFirstFramePipeline(i) {
+    const video = this.videos[i];
+    const st = this.videoState[i];
+    if (!video || !st || st.pipelineStarted) return;
+    st.pipelineStarted = true;
 
-    const prevVideo = this.videos[prev];
-    if (prevVideo) {
-      prevVideo.pause();
-      try { prevVideo.currentTime = 0; } catch (e) {}
+    const confirmFrame = () => {
+      if (st.firstFramePresented) return;
+      st.firstFramePresented = true;
+      st.status = 'ready';
+      video.style.opacity = '1'; // reveal it over its own poster now that a frame is genuinely on screen
+      const cbs = st.readyCallbacks || [];
+      st.readyCallbacks = [];
+      cbs.forEach((cb) => cb());
+    };
+
+    if (typeof video.requestVideoFrameCallback === 'function') {
+      video.requestVideoFrameCallback(() => confirmFrame());
+    } else {
+      const onPlaying = () => { requestAnimationFrame(() => requestAnimationFrame(confirmFrame)); };
+      video.addEventListener('playing', onPlaying, { once: true });
+      if (!video.paused && video.readyState >= 2) onPlaying();
     }
 
-    this.slides[prev].style.opacity = '0';
+    // Both 'loadeddata' and 'canplay' are watched (either may fire first),
+    // but whichever fires first removes the other manually - two
+    // independent once-listeners calling the same handler would leave
+    // whichever one didn't fire attached indefinitely, ready to revive a
+    // since-paused clip if that event type is ever re-emitted later (e.g.
+    // the currentTime reset once this slide's turn ends, see crossfadeTo).
+    const startPlayback = () => {
+      if (st.playRequested) return;
+      st.playRequested = true;
+      video.removeEventListener('loadeddata', startPlayback);
+      video.removeEventListener('canplay', startPlayback);
+      this.safePlayVideo(video, i);
+    };
+    video.addEventListener('loadeddata', startPlayback);
+    video.addEventListener('canplay', startPlayback);
+    if (video.readyState >= 2) startPlayback();
+
+    if (st.status === 'idle') this.loadSlide(i);
+  }
+
+  // Calls onReady immediately if slide i has already presented a real
+  // frame; otherwise queues it and (re)starts the pipeline that will.
+  ensureFirstFramePresented(i, onReady) {
+    const st = this.videoState[i];
+    if (!st) return;
+    if (st.firstFramePresented) { onReady(); return; }
+    (st.readyCallbacks = st.readyCallbacks || []).push(onReady);
+    this.startFirstFramePipeline(i);
+  }
+
+  // Moves the slideshow toward the next of the 8 slides, looping back to
+  // slide 0 after the last one - but only actually reveals it once a real
+  // rendered frame is confirmed. Until then the outgoing clip simply stays
+  // visible on its own last frame (it plays once, without looping, and a
+  // finished HTML video holds its final frame rather than reverting to its
+  // poster) - never an unready slide's poster, never a blank layer.
+  advanceSlide() {
+    if (this.reduced) return;
+    const n = this.slides.length;
+    const prev = this.activeSlide;
+    let next = (prev + 1) % n;
+    let guard = 0;
+    while (this.videoState[next] && this.videoState[next].status === 'failed' && guard < n) { next = (next + 1) % n; guard++; }
+    if (guard >= n) return; // every slide has failed; stay on whatever is currently shown
+
+    this.abandonPendingTransition(next);
+    this._pendingNext = next;
+    this.loadSlide(next);
+    this.ensureFirstFramePresented(next, () => {
+      if (this._pendingNext !== next) return; // superseded since
+      this.crossfadeTo(prev, next);
+    });
+  }
+
+  // The slide advanceSlide() was waiting on just failed - fail over to the
+  // one after it instead of leaving the outgoing clip waiting forever.
+  retargetAdvance(failedIdx) {
+    const n = this.slides.length;
+    let next = (failedIdx + 1) % n;
+    let guard = 0;
+    while (this.videoState[next] && this.videoState[next].status === 'failed' && guard < n) { next = (next + 1) % n; guard++; }
+    if (guard >= n || next === this.activeSlide) return;
+    this.abandonPendingTransition(next);
+    this._pendingNext = next;
+    this.loadSlide(next);
+    this.ensureFirstFramePresented(next, () => {
+      if (this._pendingNext !== next) return;
+      this.crossfadeTo(this.activeSlide, next);
+    });
+  }
+
+  // If a transition target is about to be replaced by a different one, any
+  // playback already started for the OLD target must stop - otherwise it
+  // keeps quietly playing, invisible, forever. Its readiness state resets
+  // so it can be tried again validly if the cycle comes back around to it.
+  abandonPendingTransition(newTarget) {
+    const old = this._pendingNext;
+    if (old == null || old === newTarget || old === this.activeSlide) return;
+    const video = this.videos[old];
+    const st = this.videoState[old];
+    if (video && st && st.playRequested && !video.paused) { try { video.pause(); } catch (e) {} }
+    if (st && st.status !== 'failed') {
+      st.playRequested = false;
+      st.pipelineStarted = false;
+      st.firstFramePresented = false;
+      st.readyCallbacks = [];
+    }
+  }
+
+  // Performs the actual crossfade once the incoming slide has a confirmed,
+  // moving frame: reveal it, fade the outgoing one out, and only pause the
+  // outgoing clip once its own fade-out has had time to finish.
+  crossfadeTo(prev, next) {
+    const prevVideo = this.videos[prev];
+    const prevSt = this.videoState[prev];
     this.slides[next].style.opacity = '1';
+    this.slides[prev].style.opacity = '0';
     this.activeSlide = next;
     this.updateDots(next);
 
-    const nextVideo = this.videos[next];
-    const st = this.videoState[next];
-    if (nextVideo && st) {
-      if (st.status === 'ready') this.safePlayVideo(nextVideo, next);
-      else if (st.status === 'idle') { st.pendingPlay = true; this.loadSlide(next); }
-      else if (st.status === 'loading') st.pendingPlay = true;
-      else if (st.status === 'failed') { this._advanceTimer = setTimeout(() => this.advanceSlide(), 1500); }
+    // Each outgoing video gets its own pause-timer slot (not a single
+    // shared one) - otherwise a transition arriving before the previous
+    // one's 950ms elapsed would cancel that earlier video's pause/reset.
+    if (prevSt) {
+      clearTimeout(prevSt.pauseTimer);
+      prevSt.pauseTimer = setTimeout(() => {
+        if (prevVideo) {
+          prevVideo.pause();
+          try { prevVideo.currentTime = 0; } catch (e) {} // rewind so it starts from the top next time the cycle comes back around
+        }
+        // The cycle is infinite - reset playback-confirmation flags (not
+        // status - its data is already loaded) so this slide's pipeline
+        // properly restarts and replays it on its next lap.
+        if (prevSt.status !== 'failed') {
+          prevSt.playRequested = false;
+          prevSt.pipelineStarted = false;
+          prevSt.firstFramePresented = false;
+        }
+      }, 950); // just past [data-slide]'s own 900ms opacity transition
     }
 
-    this.loadSlide((next + 1) % n); // preload one slide ahead - never the whole set
+    this.loadSlide((next + 1) % this.slides.length); // preload one slide ahead - never the whole set
   }
 
   updateDots(active) {
@@ -320,12 +430,16 @@ class CailamayPage {
     });
   }
 
+  // First hero slide: autoplays on its own the moment it can, and goes
+  // through the same first-frame confirmation as every other slide before
+  // its poster is dismissed, so a full 8-slide cycle wrapping back to it
+  // behaves identically to any other transition.
   initHero() {
     const video = this.heroVideo;
     if (!video) return;
     video.muted = true; video.defaultMuted = true; video.volume = 0;
     video.playsInline = true; video.setAttribute('playsinline', '');
-    this.videoState[0] = { status: 'loading' };
+    const st = this.videoState[0] = { status: 'loading', firstFramePresented: false, playRequested: true, pipelineStarted: true, readyCallbacks: [] };
 
     if (this.reduced) {
       video.removeAttribute('autoplay');
@@ -335,13 +449,25 @@ class CailamayPage {
 
     video.addEventListener('error', () => this.onSlideVideoError(0));
     video.addEventListener('ended', () => this.advanceSlide());
-    video.addEventListener('canplay', () => {
+    video.addEventListener('stalled', () => console.warn('[hero-slideshow] slide 0 stalled (slow/interrupted network)'));
+
+    const confirmFrame = () => {
+      if (st.firstFramePresented) return;
+      st.firstFramePresented = true;
+      st.status = 'ready';
       video.style.opacity = '1';
       this.reportHeroTransfer();
-      const st = this.videoState[0];
-      if (st) st.status = 'ready';
-    });
-    video.addEventListener('stalled', () => console.warn('[hero-slideshow] slide 0 stalled (slow/interrupted network)'));
+      const cbs = st.readyCallbacks || [];
+      st.readyCallbacks = [];
+      cbs.forEach((cb) => cb());
+    };
+    if (typeof video.requestVideoFrameCallback === 'function') {
+      video.requestVideoFrameCallback(() => confirmFrame());
+    } else {
+      video.addEventListener('playing', () => {
+        requestAnimationFrame(() => requestAnimationFrame(confirmFrame));
+      }, { once: true });
+    }
 
     this.safePlayVideo(video, 0);
   }
@@ -439,12 +565,14 @@ class CailamayPage {
     this.applyResponsive();
 
     this.videos.forEach((v, i) => {
+      // No `loop` here - each clip plays to its natural end and stays
+      // frozen on its last rendered frame (never its poster) until the
+      // incoming clip is confirmed ready; only the full 8-slide cycle repeats.
       v.muted = true; v.defaultMuted = true; v.volume = 0;
       v.playsInline = true; v.setAttribute('playsinline', '');
-      this.videoState[i] = { status: 'idle' };
+      this.videoState[i] = { status: 'idle', firstFramePresented: false, playRequested: false, pipelineStarted: false, readyCallbacks: [] };
       if (i === 0) return; // slide 0 is the hero video, wired up separately in initHero()
       v.addEventListener('error', () => this.onSlideVideoError(i));
-      v.addEventListener('canplay', () => this.onSlideVideoReady(i));
       v.addEventListener('ended', () => this.advanceSlide());
       v.addEventListener('stalled', () => console.warn('[hero-slideshow] slide ' + i + ' stalled (slow/interrupted network)'));
       v.addEventListener('waiting', () => console.warn('[hero-slideshow] slide ' + i + ' buffering'));
