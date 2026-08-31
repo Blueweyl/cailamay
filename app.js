@@ -5,11 +5,19 @@
 // (props/state/setState/renderVals/DCLogic lifecycle) is gone, replaced by
 // a plain class with a tiny hand-rolled setState for the handful of bits
 // (reservation form, mobile nav, sound toggle) that are genuinely reactive.
+
+// Where reservation-enquiry submissions go: a Google Apps Script Web App
+// bound to a Sheet. Left as an empty string until that's deployed -
+// onReserve() below checks for that and falls back to the old
+// client-only "preview" behavior instead of fetching an endpoint that
+// doesn't exist yet.
+const RESERVE_ENDPOINT = '';
+
 class CailamayPage {
   constructor() {
     this.state = {
-      sound: false, arrival: '', departure: '', guests: 2, note: '',
-      errors: {}, submitted: false, mobileNavOpen: false,
+      sound: false, name: '', email: '', arrival: '', departure: '', guests: 2, note: '',
+      honeypot: '', errors: {}, submitted: false, sending: false, mobileNavOpen: false,
     };
   }
 
@@ -22,8 +30,14 @@ class CailamayPage {
     if (cb) cb();
   }
 
-  validate(arrival, departure) {
+  validate(name, email, arrival, departure) {
     const errors = {};
+    if (!name || !name.trim()) errors.name = 'Name is required.';
+    if (!email || !email.trim()) {
+      errors.email = 'Email is required.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      errors.email = 'Enter a valid email address.';
+    }
     if (!arrival) {
       errors.arrival = 'Arrival date is required.';
     } else {
@@ -49,6 +63,14 @@ class CailamayPage {
     const errors = s.errors || {};
     const errList = Object.keys(errors).map((k) => errors[k]);
     const errStyle = (msg) => 'display:block;font-size:11.5px;letter-spacing:0.02em;color:#F0A66B;min-height:' + (msg ? '16px' : '0') + ';margin-top:' + (msg ? '2px' : '0');
+    const live = !!RESERVE_ENDPOINT;
+
+    if (this.nameInput && this.nameInput.value !== s.name) this.nameInput.value = s.name;
+    if (this.emailInput && this.emailInput.value !== s.email) this.emailInput.value = s.email;
+    if (this.nameInput) this.nameInput.setAttribute('aria-invalid', String(!!errors.name));
+    if (this.emailInput) this.emailInput.setAttribute('aria-invalid', String(!!errors.email));
+    if (this.nameErrEl) { this.nameErrEl.textContent = errors.name || ''; this.nameErrEl.setAttribute('style', errStyle(errors.name)); }
+    if (this.emailErrEl) { this.emailErrEl.textContent = errors.email || ''; this.emailErrEl.setAttribute('style', errStyle(errors.email)); }
 
     if (this.arrivalInput && this.arrivalInput.value !== s.arrival) this.arrivalInput.value = s.arrival;
     if (this.departureInput && this.departureInput.value !== s.departure) this.departureInput.value = s.departure;
@@ -68,6 +90,15 @@ class CailamayPage {
     if (this.incBtn) this.incBtn.disabled = s.guests >= 4;
 
     if (this.noteEl) this.noteEl.textContent = s.note;
+    if (this.disclaimerText) {
+      this.disclaimerText.textContent = live
+        ? 'Submitting sends your name, email and dates directly to CAILAMAY so someone can follow up with you by email.'
+        : 'This is an availability planner preview. It does not send a reservation request, and no one will contact you from it.';
+    }
+    if (this.submitBtn) {
+      this.submitBtn.disabled = s.sending;
+      this.submitBtn.textContent = s.sending ? 'SENDING…' : (live ? 'REQUEST THESE DATES' : 'CHECK AVAILABILITY (PREVIEW)');
+    }
   }
 
   renderMobileNavUI() {
@@ -84,20 +115,30 @@ class CailamayPage {
     }
   }
 
+  onName(e) {
+    const name = e.target.value;
+    this.setState((s) => ({ name, errors: s.submitted ? this.validate(name, s.email, s.arrival, s.departure) : s.errors }));
+  }
+
+  onEmail(e) {
+    const email = e.target.value;
+    this.setState((s) => ({ email, errors: s.submitted ? this.validate(s.name, email, s.arrival, s.departure) : s.errors }));
+  }
+
   onArrival(e) {
     const arrival = e.target.value;
-    this.setState((s) => ({ arrival, errors: s.submitted ? this.validate(arrival, s.departure) : s.errors }));
+    this.setState((s) => ({ arrival, errors: s.submitted ? this.validate(s.name, s.email, arrival, s.departure) : s.errors }));
   }
 
   onDeparture(e) {
     const departure = e.target.value;
-    this.setState((s) => ({ departure, errors: s.submitted ? this.validate(s.arrival, departure) : s.errors }));
+    this.setState((s) => ({ departure, errors: s.submitted ? this.validate(s.name, s.email, s.arrival, departure) : s.errors }));
   }
 
   onReserve(e) {
     e.preventDefault();
-    const { arrival, departure } = this.state;
-    const errors = this.validate(arrival, departure);
+    const { name, email, arrival, departure, guests, honeypot } = this.state;
+    const errors = this.validate(name, email, arrival, departure);
     this.setState({ errors, submitted: true }, () => {
       const keys = Object.keys(errors);
       if (keys.length) {
@@ -108,13 +149,51 @@ class CailamayPage {
         return;
       }
       const nights = Math.round((new Date(departure + 'T00:00:00') - new Date(arrival + 'T00:00:00')) / 86400000);
-      this.setState({
-        note: 'Preview only: ' + arrival + ' to ' + departure + ' (' + nights + ' nights, ' + this.state.guests + (this.state.guests === 1 ? ' guest' : ' guests') + ') looks available in this planner. This does not send a reservation request — no message has been sent to CAILAMAY.'
-      });
+      const guestWord = guests + (guests === 1 ? ' guest' : ' guests');
+
+      if (!RESERVE_ENDPOINT) {
+        this.setState({
+          note: 'Preview only: ' + arrival + ' to ' + departure + ' (' + nights + ' nights, ' + guestWord + ') looks available in this planner. This does not send a reservation request — no message has been sent to CAILAMAY.'
+        });
+        return;
+      }
+
+      if (honeypot) {
+        // Bot almost certainly filled the hidden field - pretend it worked.
+        this.setState({ note: 'Thank you — your enquiry for ' + arrival + ' to ' + departure + ' has been sent. CAILAMAY will reply to ' + email + ' shortly.' });
+        return;
+      }
+
+      this.setState({ sending: true, note: '' });
+      // text/plain avoids a CORS preflight (OPTIONS) that Apps Script web
+      // apps don't reliably answer; the script itself still just
+      // JSON.parses e.postData.contents regardless of the declared type.
+      fetch(RESERVE_ENDPOINT, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ name, email, arrival, departure, guests, nights }),
+      })
+        .then((res) => { if (!res.ok) throw new Error('HTTP ' + res.status); })
+        .then(() => {
+          this.setState({
+            sending: false,
+            note: 'Thank you, ' + name + ' — your enquiry for ' + arrival + ' to ' + departure + ' (' + nights + ' nights, ' + guestWord + ') has been sent. CAILAMAY will reply to ' + email + ' shortly.',
+          });
+        })
+        .catch((err) => {
+          console.error('[Cailamay] reservation enquiry failed to send.', err);
+          this.setState({ sending: false, note: 'Something went wrong sending that — please try again, or email the villa directly.' });
+        });
     });
   }
 
   initReserveForm() {
+    this.nameInput = document.getElementById('res-name');
+    this.emailInput = document.getElementById('res-email');
+    this.nameErrEl = document.getElementById('res-name-err');
+    this.emailErrEl = document.getElementById('res-email-err');
+    this.honeypotInput = document.getElementById('res-company');
     this.arrivalInput = document.getElementById('res-arrival');
     this.departureInput = document.getElementById('res-departure');
     this.arrivalErrEl = document.getElementById('res-arrival-err');
@@ -125,13 +204,21 @@ class CailamayPage {
     this.decBtn = document.getElementById('res-dec-guests');
     this.incBtn = document.getElementById('res-inc-guests');
     this.noteEl = document.getElementById('res-note');
+    this.disclaimerText = document.getElementById('res-disclaimer-text');
+    this.submitBtn = document.getElementById('res-submit');
     const form = document.getElementById('reserve-form');
 
+    if (this.nameInput) this.nameInput.addEventListener('input', (e) => this.onName(e));
+    if (this.emailInput) this.emailInput.addEventListener('input', (e) => this.onEmail(e));
+    if (this.honeypotInput) this.honeypotInput.addEventListener('input', (e) => { this.state.honeypot = e.target.value; });
     if (this.arrivalInput) this.arrivalInput.addEventListener('input', (e) => this.onArrival(e));
     if (this.departureInput) this.departureInput.addEventListener('input', (e) => this.onDeparture(e));
     if (this.decBtn) this.decBtn.addEventListener('click', () => this.setState((s) => ({ guests: Math.max(1, s.guests - 1) })));
     if (this.incBtn) this.incBtn.addEventListener('click', () => this.setState((s) => ({ guests: Math.min(4, s.guests + 1) })));
     if (form) form.addEventListener('submit', (e) => this.onReserve(e));
+    // Render once at init so the disclaimer/submit-label reflect whether
+    // RESERVE_ENDPOINT is actually configured, not just the static HTML.
+    this.renderReserveUI();
   }
 
   // ---- Mobile nav ----
