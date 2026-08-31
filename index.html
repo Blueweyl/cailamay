@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Discover CAILAMAY, a secluded private coastal retreat in Palawan designed for peaceful escapes, intimate stays and uninterrupted time together." />
+<title>CAILAMAY | Private Luxury Retreat in Palawan</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23F6F2EB' stroke-width='1.4'/%3E%3Cline x1='2' y1='16' x2='30' y2='16' stroke='%23F6F2EB' stroke-width='1.2'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23D8945B'/%3E%3C/svg%3E" />
+<!--
+  Production export of Cailamay.dc.html (the editable Claude Design canvas
+  prototype in the repo above this folder). This page is ahead-of-time
+  compiled per PRODUCTION-EXPORT.md: no support.js dc-runtime, no in-browser
+  Babel/eval, no unpkg.com fetch, no <image-slot> editor widgets - just the
+  page markup plus one plain, static <script> at the bottom. Edit the
+  prototype, not this file; re-export after prototype changes.
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; media-src 'self'; font-src https://fonts.gstatic.com; connect-src 'self'; base-uri 'self'; form-action 'self';" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #101615; overflow-x: clip; }
+  body { font-family: 'Jost', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #EAE2D5; text-decoration: none; }
+  a:hover { color: #D8945B; }
+  ::selection { background: #A9825A; color: #101615; }
+  input, button { font-family: inherit; }
+  input::placeholder { color: rgba(234,226,213,0.35); }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.8); opacity: 0.5; cursor: pointer; }
+  *:focus-visible { outline: 1px solid #D8945B; outline-offset: 3px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+  .sr-only-focusable:focus { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip: auto; white-space: normal; }
+  @keyframes camDrift { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(0,-8px,0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+  /* style-hover replacements (the dc-runtime's style-hover="..." attribute has no
+     meaning in plain HTML/CSS - these three rules reproduce the same states). */
+  .btn-ghost:hover:not(:disabled) { border-color: #D8945B; color: #D8945B; }
+  .btn-primary:hover { background: #D8945B; color: #101615; }
+  .btn-sound:hover { border-color: #D8945B; color: #D8945B; }
+</style>
+</head>
+<body>
+
+<nav data-nav="1" aria-label="Primary" style="position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:26px 42px;transition:background 700ms ease, padding 700ms ease, border-color 700ms ease;border-bottom:1px solid rgba(234,226,213,0);backdrop-filter:blur(0px)">
+  <a href="#top" aria-label="CAILAMAY home" style="display:flex;align-items:center;gap:14px">
+    <span style="position:relative;display:block;width:24px;height:24px;flex:none">
+      <span style="position:absolute;inset:0;border:1px solid rgba(246,242,235,0.6);border-radius:50%"></span>
+      <span style="position:absolute;left:-6px;right:-6px;top:50%;height:1px;background:rgba(246,242,235,0.6)"></span>
+      <span style="position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#D8945B"></span>
+    </span>
+    <span style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:21px;letter-spacing:0.3em;color:#F6F2EB;padding-left:0.3em">CAILAMAY</span>
+  </a>
+  <div style="display:flex;align-items:center;gap:34px">
+    <div data-navmenu="1" style="display:flex;align-items:center;gap:30px;font-size:11.5px;letter-spacing:0.24em;color:rgba(246,242,235,0.78)">
+      <a href="#stay" style="color:inherit">STAY</a>
+      <a href="#villa" style="color:inherit">THE VILLA</a>
+      <a href="#experience" style="color:inherit">EXPERIENCE</a>
+      <a href="#palawan" style="color:inherit">PALAWAN</a>
+      <a href="#gallery" style="color:inherit">GALLERY</a>
+    </div>
+    <a data-navreserve="1" href="#reserve" style="font-size:11.5px;letter-spacing:0.24em;padding:12px 22px;min-height:44px;display:inline-flex;align-items:center;border:1px solid rgba(234,226,213,0.4);color:#F6F2EB">RESERVE</a>
+    <button data-navtoggle="1" type="button" aria-expanded="false" aria-controls="mobile-nav-panel" aria-label="Open menu" style="display:none;width:44px;height:44px;align-items:center;justify-content:center;background:transparent;border:1px solid rgba(234,226,213,0.32);color:#F6F2EB;cursor:pointer;flex:none">
+      <span aria-hidden="true" style="position:relative;display:block;width:18px;height:12px">
+        <span style="position:absolute;left:0;right:0;top:0;height:1px;background:currentColor;transition:transform 220ms ease, opacity 220ms ease"></span>
+        <span style="position:absolute;left:0;right:0;top:50%;margin-top:-0.5px;height:1px;background:currentColor;transition:opacity 220ms ease"></span>
+        <span style="position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;transition:transform 220ms ease, opacity 220ms ease"></span>
+      </span>
+    </button>
+  </div>
+</nav>
+
+<div id="mobile-nav-panel" data-mobilenav="1" role="dialog" aria-modal="true" aria-label="Site navigation" aria-hidden="true" style="position:fixed;inset:0;z-index:59;background:#101615;display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+  <a data-mobilelink="1" href="#stay" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;letter-spacing:0.08em;color:#F6F2EB;padding:16px 24px;min-height:44px;display:flex;align-items:center">STAY</a>
+  <a data-mobilelink="1" href="#villa" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;letter-spacing:0.08em;color:#F6F2EB;padding:16px 24px;min-height:44px;display:flex;align-items:center">THE VILLA</a>
+  <a data-mobilelink="1" href="#experience" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;letter-spacing:0.08em;color:#F6F2EB;padding:16px 24px;min-height:44px;display:flex;align-items:center">EXPERIENCE</a>
+  <a data-mobilelink="1" href="#palawan" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;letter-spacing:0.08em;color:#F6F2EB;padding:16px 24px;min-height:44px;display:flex;align-items:center">PALAWAN</a>
+  <a data-mobilelink="1" href="#gallery" style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;letter-spacing:0.08em;color:#F6F2EB;padding:16px 24px;min-height:44px;display:flex;align-items:center">GALLERY</a>
+  <a data-mobilelink="1" href="#reserve" style="margin-top:18px;font-size:12.5px;letter-spacing:0.26em;padding:16px 34px;min-height:44px;display:flex;align-items:center;border:1px solid rgba(234,226,213,0.4);color:#F6F2EB">RESERVE</a>
+</div>
+
+<div id="top" data-cinema="1" style="position:relative;height:780vh;background:#101615">
+  <div data-stage="1" style="position:sticky;top:0;height:100vh;overflow:hidden;background:#0b0f0f">
+
+    <div data-leg="0" style="position:absolute;inset:-4%;opacity:1;will-change:opacity,transform">
+      <!--
+        Hero video: a normal autoplaying background video, not part of the
+        scroll-scrub system below. It gets a real relative `src` (streamed
+        and byte-range-seekable by the browser) so it starts playing on its
+        own the moment it can, then loops. The poster <img> sits underneath
+        and stays visible until the video reports `canplay` (see initHero()
+        below), so the hero is never blank even if autoplay is rejected or
+        the file fails to load.
+      -->
+      <img data-hero-poster="1" src="images/h.jpg" alt="" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b0f0f" />
+      <video data-vid="0" data-hero-video="1" src="videos/optimized/leg1.mp4" poster="images/h.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b0f0f;opacity:0;transition:opacity 480ms ease"></video>
+    </div>
+    <div data-leg="1" style="position:absolute;inset:-4%;opacity:0;will-change:opacity,transform">
+      <video data-vid="1" data-vsrc="videos/optimized/leg2.mp4" poster="images/a.jpg" muted playsinline preload="metadata" aria-hidden="true" tabindex="-1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b0f0f"></video>
+    </div>
+    <div data-leg="2" style="position:absolute;inset:-4%;opacity:0;will-change:opacity,transform">
+      <video data-vid="2" data-vsrc="videos/optimized/leg3.mp4" poster="images/g.jpg" muted playsinline preload="metadata" aria-hidden="true" tabindex="-1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b0f0f"></video>
+    </div>
+    <div data-leg="3" style="position:absolute;inset:-4%;opacity:0;will-change:opacity,transform">
+      <video data-vid="3" data-vsrc="videos/optimized/leg4.mp4" poster="images/d.jpg" muted playsinline preload="metadata" aria-hidden="true" tabindex="-1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b0f0f"></video>
+    </div>
+    <div data-leg="4" style="position:absolute;inset:-4%;opacity:0;will-change:opacity,transform">
+      <video data-vid="4" data-vsrc="videos/optimized/leg5.mp4" poster="images/bd.jpg" muted playsinline preload="metadata" aria-hidden="true" tabindex="-1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b0f0f"></video>
+    </div>
+    <div data-leg="5" style="position:absolute;inset:-4%;opacity:0;will-change:opacity,transform">
+      <video data-vid="5" data-vsrc="videos/optimized/leg6.mp4" poster="images/ba.jpg" muted playsinline preload="metadata" aria-hidden="true" tabindex="-1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b0f0f"></video>
+    </div>
+    <div data-leg="6" style="position:absolute;inset:-4%;opacity:0;will-change:opacity,transform">
+      <video data-vid="6" data-vsrc="videos/optimized/leg7.mp4" poster="images/p.jpg" muted playsinline preload="metadata" aria-hidden="true" tabindex="-1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b0f0f"></video>
+    </div>
+    <div data-leg="7" style="position:absolute;inset:-4%;opacity:0;will-change:opacity,transform">
+      <video data-vid="7" data-vsrc="videos/optimized/leg8.mp4" poster="images/h.jpg" muted playsinline preload="metadata" aria-hidden="true" tabindex="-1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#0b0f0f"></video>
+    </div>
+
+    <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg, rgba(16,22,21,0.55) 0%, rgba(16,22,21,0.05) 34%, rgba(16,22,21,0.12) 58%, rgba(16,22,21,0.82) 100%)"></div>
+    <div data-outscrim="1" style="position:absolute;inset:0;pointer-events:none;background:#101615;opacity:0"></div>
+
+    <div data-hero="1" style="position:absolute;inset:0;display:grid;grid-template-rows:1fr auto;padding:0 42px 54px;pointer-events:none;will-change:opacity,transform">
+      <p class="sr-only">Scrolling plays a cinematic sequence through the villa — sea, arrival, living room, dining, bedroom, bath and pool — before the page continues below.</p>
+      <div style="display:flex;align-items:flex-end">
+        <div style="max-width:940px;padding-bottom:26px">
+          <div style="font-size:11px;letter-spacing:0.4em;color:rgba(246,242,235,0.66);margin-bottom:26px">PALAWAN · PHILIPPINES</div>
+          <h1 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(44px,7.2vw,116px);line-height:0.96;letter-spacing:-0.015em;color:#F6F2EB;margin:0 0 26px;text-wrap:pretty">Somewhere the world<br />cannot follow.</h1>
+          <p style="max-width:460px;font-size:15px;font-weight:300;line-height:1.75;letter-spacing:0.02em;color:rgba(246,242,235,0.8);margin:0 0 40px">A private coastal sanctuary hidden between the limestone cliffs, jungle and sea of Palawan.</p>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px;pointer-events:auto">
+            <a href="#reserve" style="display:inline-block;padding:17px 34px;background:#F6F2EB;color:#162827;font-size:11.5px;letter-spacing:0.26em">RESERVE YOUR STAY</a>
+            <a href="#stay" style="display:inline-block;padding:17px 30px;border:1px solid rgba(246,242,235,0.42);color:#F6F2EB;font-size:11.5px;letter-spacing:0.26em">DISCOVER CAILAMAY</a>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px">
+        <div style="font-size:10.5px;letter-spacing:0.3em;color:rgba(246,242,235,0.5)">PRIVATE VILLA · ONE RESERVATION AT A TIME</div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:10.5px;letter-spacing:0.3em;color:rgba(246,242,235,0.5)">
+          <span>SCROLL TO ENTER</span>
+          <span style="display:block;width:1px;height:44px;background:linear-gradient(180deg,rgba(246,242,235,0.6),rgba(246,242,235,0))"></span>
+        </div>
+      </div>
+    </div>
+
+    <div data-rail="1" aria-hidden="true" style="position:absolute;right:34px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:flex-end;gap:14px;opacity:0;transition:opacity 600ms ease">
+      <div data-dot="0" style="display:flex;align-items:center;gap:12px"><span data-label="1" style="font-size:9.5px;letter-spacing:0.3em;color:rgba(246,242,235,0.75);opacity:0;transition:opacity 500ms ease">SEA</span><span data-pip="1" style="width:5px;height:5px;border-radius:50%;background:rgba(246,242,235,0.28);transition:background 500ms ease, transform 500ms ease"></span></div>
+      <div data-dot="1" style="display:flex;align-items:center;gap:12px"><span data-label="1" style="font-size:9.5px;letter-spacing:0.3em;color:rgba(246,242,235,0.75);opacity:0;transition:opacity 500ms ease">ARRIVAL</span><span data-pip="1" style="width:5px;height:5px;border-radius:50%;background:rgba(246,242,235,0.28);transition:background 500ms ease, transform 500ms ease"></span></div>
+      <div data-dot="2" style="display:flex;align-items:center;gap:12px"><span data-label="1" style="font-size:9.5px;letter-spacing:0.3em;color:rgba(246,242,235,0.75);opacity:0;transition:opacity 500ms ease">LIVING</span><span data-pip="1" style="width:5px;height:5px;border-radius:50%;background:rgba(246,242,235,0.28);transition:background 500ms ease, transform 500ms ease"></span></div>
+      <div data-dot="3" style="display:flex;align-items:center;gap:12px"><span data-label="1" style="font-size:9.5px;letter-spacing:0.3em;color:rgba(246,242,235,0.75);opacity:0;transition:opacity 500ms ease">DINING</span><span data-pip="1" style="width:5px;height:5px;border-radius:50%;background:rgba(246,242,235,0.28);transition:background 500ms ease, transform 500ms ease"></span></div>
+      <div data-dot="4" style="display:flex;align-items:center;gap:12px"><span data-label="1" style="font-size:9.5px;letter-spacing:0.3em;color:rgba(246,242,235,0.75);opacity:0;transition:opacity 500ms ease">BEDROOM</span><span data-pip="1" style="width:5px;height:5px;border-radius:50%;background:rgba(246,242,235,0.28);transition:background 500ms ease, transform 500ms ease"></span></div>
+      <div data-dot="5" style="display:flex;align-items:center;gap:12px"><span data-label="1" style="font-size:9.5px;letter-spacing:0.3em;color:rgba(246,242,235,0.75);opacity:0;transition:opacity 500ms ease">BATH</span><span data-pip="1" style="width:5px;height:5px;border-radius:50%;background:rgba(246,242,235,0.28);transition:background 500ms ease, transform 500ms ease"></span></div>
+      <div data-dot="6" style="display:flex;align-items:center;gap:12px"><span data-label="1" style="font-size:9.5px;letter-spacing:0.3em;color:rgba(246,242,235,0.75);opacity:0;transition:opacity 500ms ease">POOL</span><span data-pip="1" style="width:5px;height:5px;border-radius:50%;background:rgba(246,242,235,0.28);transition:background 500ms ease, transform 500ms ease"></span></div>
+      <div data-dot="7" style="display:flex;align-items:center;gap:12px"><span data-label="1" style="font-size:9.5px;letter-spacing:0.3em;color:rgba(246,242,235,0.75);opacity:0;transition:opacity 500ms ease">PALAWAN</span><span data-pip="1" style="width:5px;height:5px;border-radius:50%;background:rgba(246,242,235,0.28);transition:background 500ms ease, transform 500ms ease"></span></div>
+    </div>
+
+  </div>
+</div>
+
+<section id="stay" style="position:relative;background:#101615;padding:20vh 42px 18vh;display:flex;justify-content:center">
+  <div style="max-width:760px;text-align:center">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:20px;margin-bottom:56px">
+      <span style="position:relative;display:block;width:40px;height:40px">
+        <span style="position:absolute;inset:0;border:1px solid rgba(246,242,235,0.45);border-radius:50%"></span>
+        <span style="position:absolute;left:-10px;right:-10px;top:50%;height:1px;background:rgba(246,242,235,0.45)"></span>
+        <span style="position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#D8945B"></span>
+      </span>
+      <span style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:24px;letter-spacing:0.42em;color:rgba(246,242,235,0.72);padding-left:0.42em">CAILAMAY</span>
+    </div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(34px,5vw,74px);line-height:1.06;color:#F6F2EB;margin:0 0 34px;text-wrap:pretty">Stay where the noise cannot reach you.</h2>
+    <p style="font-size:15.5px;font-weight:300;line-height:1.85;color:rgba(234,226,213,0.62);margin:0 auto;max-width:520px">A private tropical residence created for two people to slow down, reconnect and experience Palawan without the crowds.</p>
+  </div>
+</section>
+
+<section id="villa" style="position:relative;background:#162827;padding:14vh 0 16vh">
+  <div data-resp="two" data-resppad-x="1" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,6vw,96px);align-items:center;padding:0 42px;max-width:1560px;margin:0 auto">
+    <div data-respmin="420px" style="position:relative;aspect-ratio:4/5;min-height:420px">
+      <img src="images/g.jpg" alt="Great room — retractable glass walls, cream linen, limestone floor" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" />
+    </div>
+    <div style="max-width:520px">
+      <div style="font-size:10.5px;letter-spacing:0.36em;color:#A9825A;margin-bottom:30px">THE VILLA</div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(32px,4.4vw,66px);line-height:1.05;color:#F6F2EB;margin:0 0 32px">Designed around two people.</h2>
+      <p style="font-size:15.5px;font-weight:300;line-height:1.9;color:rgba(234,226,213,0.7);margin:0 0 22px">One low horizontal structure, set back into the jungle so the sea arrives before the architecture does. Glass walls retract entirely; the limestone floor runs from the sofa to the pool edge without a threshold. There is no lobby, no corridor of doors, no neighbour.</p>
+      <p style="font-size:15.5px;font-weight:300;line-height:1.9;color:rgba(234,226,213,0.7);margin:0 0 44px">Rooms are open on two sides and closed on the others — you can spend a whole day undressed, unhurried and unseen.</p>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:rgba(234,226,213,0.14)">
+        <div style="background:#162827;padding:22px 4px 22px 0;font-size:12.5px;letter-spacing:0.16em;color:rgba(246,242,235,0.86)">PRIVATE INFINITY POOL</div>
+        <div style="background:#162827;padding:22px 4px 22px 20px;font-size:12.5px;letter-spacing:0.16em;color:rgba(246,242,235,0.86)">OPEN-AIR BATHING COURTYARD</div>
+        <div style="background:#162827;padding:22px 4px 22px 0;font-size:12.5px;letter-spacing:0.16em;color:rgba(246,242,235,0.86)">SUNSET TERRACE</div>
+        <div style="background:#162827;padding:22px 4px 22px 20px;font-size:12.5px;letter-spacing:0.16em;color:rgba(246,242,235,0.86)">DIRECT COVE ACCESS</div>
+      </div>
+    </div>
+  </div>
+  <div style="position:relative;height:78vh;min-height:460px;margin-top:14vh">
+    <img src="images/p.jpg" alt="Full-bleed villa exterior at blue hour, pool merging with the sea" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" />
+  </div>
+</section>
+
+<section id="experience" data-resp="two" style="position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+  <div style="background:#F6F2EB;padding:16vh 42px;display:flex;flex-direction:column;gap:52px">
+    <div>
+      <div style="font-size:10.5px;letter-spacing:0.36em;color:#A9825A;margin-bottom:26px">MORNING</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(30px,3.6vw,56px);line-height:1.06;color:#162827;margin:0 0 24px">Wake slowly.</h3>
+      <p style="font-size:15px;font-weight:300;line-height:1.9;color:rgba(22,40,39,0.72);margin:0;max-width:400px">Curtains open on their own schedule. Coffee arrives on the terrace, the tide is out, and the water in the cove is the colour of glass. Nothing is scheduled until you schedule it.</p>
+    </div>
+    <div style="position:relative;aspect-ratio:3/2">
+      <img src="images/m.jpg" alt="Morning bedroom — sunrise through sheer curtains, coffee for two" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" />
+    </div>
+  </div>
+  <div style="background:#203733;padding:16vh 42px;display:flex;flex-direction:column;gap:52px;justify-content:flex-end">
+    <div style="position:relative;aspect-ratio:3/2">
+      <img src="images/s.jpg" alt="Sunset dinner beside the infinity pool, candlelight, blue hour" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" />
+    </div>
+    <div>
+      <div style="font-size:10.5px;letter-spacing:0.36em;color:#D8945B;margin-bottom:26px">EVENING</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(30px,3.6vw,56px);line-height:1.06;color:#F6F2EB;margin:0 0 24px">Stay a little longer.</h3>
+      <p style="font-size:15px;font-weight:300;line-height:1.9;color:rgba(234,226,213,0.72);margin:0;max-width:400px">One table is set beside the pool as the sun drops behind the islands. Dinner is cooked for two and served once, quietly, then the house is yours again.</p>
+    </div>
+  </div>
+</section>
+
+<section style="position:relative;background:#101615;padding:16vh 42px">
+  <div style="max-width:1560px;margin:0 auto">
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:28px;margin-bottom:8vh">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(34px,5vw,78px);line-height:1;color:#F6F2EB;margin:0">Only yours.</h2>
+      <p style="font-size:14.5px;font-weight:300;line-height:1.85;color:rgba(234,226,213,0.58);margin:0;max-width:400px">Small arrangements, quietly made. No packages, no announcements — the villa simply notices what two people need.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:22px">
+      <div data-respspan="span 5" style="grid-column:span 5;display:flex;flex-direction:column;gap:22px">
+        <div style="position:relative;aspect-ratio:4/5"><img src="images/cu.jpg" alt="Two ceramic cups on rumpled linen, detail" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div>
+        <div style="font-size:11px;letter-spacing:0.28em;color:rgba(234,226,213,0.5)">BREAKFAST, WHENEVER</div>
+      </div>
+      <div data-respspan="span 7" data-resppad="9vh" style="grid-column:span 7;display:flex;flex-direction:column;gap:22px;padding-top:9vh">
+        <div style="position:relative;aspect-ratio:16/10"><img src="images/ba.jpg" alt="Open-air bath — sculptural tub for two, bronze fixtures" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div>
+        <div style="font-size:11px;letter-spacing:0.28em;color:rgba(234,226,213,0.5)">THE BATHING COURTYARD</div>
+      </div>
+      <div data-respspan="span 4" style="grid-column:span 4;display:flex;flex-direction:column;gap:22px">
+        <div style="position:relative;aspect-ratio:3/4"><img src="images/ba.jpg" alt="Two robes on limestone wall, folded cream towels" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div>
+        <div style="font-size:11px;letter-spacing:0.28em;color:rgba(234,226,213,0.5)">TWO ROBES, NO SCHEDULE</div>
+      </div>
+      <div data-respspan="span 8" data-resppad="6vh" style="grid-column:span 8;display:flex;flex-direction:column;gap:22px;padding-top:6vh">
+        <div style="position:relative;aspect-ratio:16/9"><img src="images/c.jpg" alt="Private cove — pale sand, limestone formations, two towels" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div>
+        <div style="font-size:11px;letter-spacing:0.28em;color:rgba(234,226,213,0.5)">THE COVE BELOW THE HOUSE</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="palawan" style="position:relative;background:#203733;padding:0 0 16vh">
+  <div style="position:relative;height:92vh;min-height:520px">
+    <img src="images/c.jpg" alt="Full-bleed Palawan landscape — limestone formations rising from turquoise water" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" />
+    <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(32,55,51,0.35),rgba(32,55,51,0) 45%,rgba(32,55,51,0.9))"></div>
+    <div style="position:absolute;left:42px;bottom:9vh;pointer-events:none">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(34px,5.6vw,86px);line-height:1;color:#F6F2EB;margin:0">At the edge of Palawan.</h2>
+    </div>
+  </div>
+  <div data-resp="three" data-resppad-x="1" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(28px,5vw,80px);padding:10vh 42px 0;max-width:1560px;margin:0 auto">
+    <p style="font-size:15px;font-weight:300;line-height:1.9;color:rgba(234,226,213,0.72);margin:0">Limestone rises straight out of the water here, holding the coastline in a series of coves that boats never bother to enter.</p>
+    <p style="font-size:15px;font-weight:300;line-height:1.9;color:rgba(234,226,213,0.72);margin:0">Mornings are still enough to hear the forest before the sea. By late afternoon the water goes flat and the islands turn to silhouettes.</p>
+    <p style="font-size:15px;font-weight:300;line-height:1.9;color:rgba(234,226,213,0.72);margin:0">Everything worth seeing is a short boat ride away — and nothing worth seeing requires you to leave the house.</p>
+  </div>
+</section>
+
+<section id="gallery" style="position:relative;background:#101615;padding:16vh 0">
+  <div style="padding:0 42px;max-width:1560px;margin:0 auto 8vh">
+    <div style="font-size:10.5px;letter-spacing:0.36em;color:#A9825A;margin-bottom:26px">GALLERY</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(32px,4.4vw,66px);line-height:1.04;color:#F6F2EB;margin:0;max-width:640px">One house, photographed over three days.</h2>
+  </div>
+  <div data-parallax-scope="1" style="display:flex;flex-direction:column;gap:clamp(28px,6vh,90px)">
+    <div style="position:relative;height:86vh;min-height:480px"><div data-px="0.6" style="position:absolute;inset:-3%"><img src="images/n.jpg" alt="Full-bleed night exterior, warm light in the pool" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div></div>
+    <div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:22px;padding:0 42px;max-width:1560px;margin:0 auto;width:100%;box-sizing:border-box">
+      <div data-respspan="2 / span 4" style="grid-column:2 / span 4;position:relative;aspect-ratio:2/3"><div data-px="1.1" style="position:absolute;inset:-3%"><img src="images/cu.jpg" alt="Portrait detail — rattan chair, woven textile" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div></div>
+      <div data-respspan="7 / span 5" style="grid-column:7 / span 5;position:relative;aspect-ratio:3/4;align-self:end"><div data-px="0.5" style="position:absolute;inset:-3%"><img src="images/bd.jpg" alt="Portrait — bedroom curtains, blue hour" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div></div>
+    </div>
+    <div style="position:relative;height:78vh;min-height:440px"><div data-px="0.8" style="position:absolute;inset:-3%"><img src="images/p.jpg" alt="Cinematic crop — infinity pool meeting the sea" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div></div>
+    <div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:22px;padding:0 42px;max-width:1560px;margin:0 auto;width:100%;box-sizing:border-box">
+      <div data-respspan="1 / span 7" style="grid-column:1 / span 7;position:relative;aspect-ratio:16/11"><div data-px="0.7" style="position:absolute;inset:-3%"><img src="images/d.jpg" alt="Private dining pavilion, candlelight" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div></div>
+      <div data-respspan="9 / span 3" style="grid-column:9 / span 3;position:relative;aspect-ratio:3/4;align-self:center"><div data-px="1.3" style="position:absolute;inset:-3%"><img src="images/ba.jpg" alt="Architectural closeup — bronze tap on limestone" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="reserve" style="position:relative;background:#162827;padding:18vh 42px">
+  <div data-resp="reserve" style="max-width:1080px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:clamp(40px,7vw,110px);align-items:start">
+    <div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(32px,4.6vw,70px);line-height:1.03;color:#F6F2EB;margin:0 0 30px;text-wrap:pretty">When would you like to disappear?</h2>
+      <p style="font-size:15px;font-weight:300;line-height:1.9;color:rgba(234,226,213,0.66);margin:0 0 22px;max-width:420px">CAILAMAY takes one reservation at a time. Choose your dates below to check the shape of a stay.</p>
+      <div style="display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border:1px solid rgba(216,148,91,0.4);background:rgba(216,148,91,0.08);margin-bottom:22px">
+        <span aria-hidden="true" style="font-size:13px;color:#D8945B">i</span>
+        <span style="font-size:11.5px;letter-spacing:0.03em;line-height:1.6;color:#EAE2D5">This is an availability planner preview. It does not send a reservation request, and no one will contact you from it.</span>
+      </div>
+      <div style="font-size:11px;letter-spacing:0.28em;color:rgba(234,226,213,0.45)">MINIMUM STAY THREE NIGHTS · UP TO FOUR GUESTS</div>
+    </div>
+    <form id="reserve-form" data-reserveform="1" novalidate style="display:flex;flex-direction:column;gap:1px;background:rgba(234,226,213,0.16);padding:1px">
+      <div data-errorsummary="1" role="alert" aria-live="assertive" tabindex="-1" style="background:#3a2420;padding:0;max-height:0;overflow:hidden">
+        <div style="font-size:11px;letter-spacing:0.16em;color:#F6F2EB;margin-bottom:8px">PLEASE CHECK THE FOLLOWING</div>
+        <div data-errorsummary-text="1" style="font-size:12.5px;line-height:1.8;color:#F0C4A8"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px">
+        <label style="background:#162827;padding:20px 22px;display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:9.5px;letter-spacing:0.3em;color:rgba(234,226,213,0.5)">ARRIVAL</span>
+          <input id="res-arrival" type="date" value="" aria-label="Arrival date" aria-invalid="false" aria-describedby="res-arrival-err" style="background:transparent;border:0;color:#F6F2EB;font-size:14px;letter-spacing:0.04em;padding:0;width:100%;min-height:24px" />
+          <span id="res-arrival-err" role="alert" style="display:block;font-size:11.5px;letter-spacing:0.02em;color:#F0A66B;min-height:0;margin-top:0"></span>
+        </label>
+        <label style="background:#162827;padding:20px 22px;display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:9.5px;letter-spacing:0.3em;color:rgba(234,226,213,0.5)">DEPARTURE</span>
+          <input id="res-departure" type="date" value="" aria-label="Departure date" aria-invalid="false" aria-describedby="res-departure-err" style="background:transparent;border:0;color:#F6F2EB;font-size:14px;letter-spacing:0.04em;padding:0;width:100%;min-height:24px" />
+          <span id="res-departure-err" role="alert" style="display:block;font-size:11.5px;letter-spacing:0.02em;color:#F0A66B;min-height:0;margin-top:0"></span>
+        </label>
+      </div>
+      <div style="background:#162827;padding:20px 22px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span id="res-guests-label" style="font-size:9.5px;letter-spacing:0.3em;color:rgba(234,226,213,0.5)">GUESTS</span>
+          <span id="res-guest-count" aria-live="polite" style="font-size:14px;color:#F6F2EB">2 GUESTS</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px" role="group" aria-labelledby="res-guests-label">
+          <button id="res-dec-guests" type="button" class="btn-ghost" aria-label="Fewer guests" style="width:44px;height:44px;border:1px solid rgba(234,226,213,0.28);background:transparent;color:#F6F2EB;font-size:16px;cursor:pointer">−</button>
+          <button id="res-inc-guests" type="button" class="btn-ghost" aria-label="More guests" style="width:44px;height:44px;border:1px solid rgba(234,226,213,0.28);background:transparent;color:#F6F2EB;font-size:16px;cursor:pointer">+</button>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary" style="background:#F6F2EB;color:#162827;border:0;padding:22px;font-size:11.5px;letter-spacing:0.28em;cursor:pointer;min-height:44px">CHECK AVAILABILITY (PREVIEW)</button>
+      <div id="res-note" role="status" aria-live="polite" style="background:#162827;padding:16px 22px;font-size:12px;font-weight:300;letter-spacing:0.02em;color:#B7A792;min-height:18px"></div>
+    </form>
+  </div>
+</section>
+
+<footer style="background:#101615;border-top:1px solid rgba(234,226,213,0.12);padding:12vh 42px 44px">
+  <div data-resp="footer" style="max-width:1560px;margin:0 auto;display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:48px">
+    <div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px">
+        <span style="position:relative;display:block;width:26px;height:26px;flex:none">
+          <span style="position:absolute;inset:0;border:1px solid rgba(246,242,235,0.55);border-radius:50%"></span>
+          <span style="position:absolute;left:-7px;right:-7px;top:50%;height:1px;background:rgba(246,242,235,0.55)"></span>
+          <span style="position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#D8945B"></span>
+        </span>
+        <span style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:23px;letter-spacing:0.32em;color:#F6F2EB;padding-left:0.32em">CAILAMAY</span>
+      </div>
+      <div style="font-size:12.5px;line-height:2;letter-spacing:0.14em;color:rgba(234,226,213,0.55)">PALAWAN<br />PHILIPPINES</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;font-size:12px;letter-spacing:0.2em;color:rgba(234,226,213,0.62)">
+      <a href="#stay" style="color:inherit">STAY</a>
+      <a href="#villa" style="color:inherit">THE VILLA</a>
+      <a href="#experience" style="color:inherit">EXPERIENCE</a>
+      <a href="#palawan" style="color:inherit">PALAWAN</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;font-size:12px;letter-spacing:0.2em;color:rgba(234,226,213,0.62)">
+      <a href="#gallery" style="color:inherit">GALLERY</a>
+      <a href="#reserve" style="color:inherit">RESERVATIONS</a>
+      <a href="#reserve" style="color:inherit">CONTACT</a>
+      <span aria-hidden="true" style="color:rgba(234,226,213,0.3)">INSTAGRAM (COMING SOON)</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;font-size:12px;letter-spacing:0.2em;color:rgba(234,226,213,0.62)">
+      <span aria-hidden="true" style="color:rgba(234,226,213,0.3)">PRIVACY (COMING SOON)</span>
+      <span aria-hidden="true" style="color:rgba(234,226,213,0.3)">TERMS (COMING SOON)</span>
+    </div>
+  </div>
+  <div style="max-width:1560px;margin:10vh auto 0;display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center;border-top:1px solid rgba(234,226,213,0.1);padding-top:26px">
+    <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;color:rgba(246,242,235,0.72)">Some places are better kept between us.</div>
+    <div style="font-size:10.5px;letter-spacing:0.26em;color:rgba(234,226,213,0.35)">© CAILAMAY</div>
+  </div>
+</footer>
+
+<button id="sound-toggle" type="button" class="btn-sound" aria-label="Turn ambient sound on" style="position:fixed;left:26px;bottom:24px;z-index:60;background:rgba(16,22,21,0.55);backdrop-filter:blur(6px);border:1px solid rgba(234,226,213,0.24);color:#F6F2EB;font-size:9.5px;letter-spacing:0.28em;padding:11px 16px;min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer">SOUND OFF</button>
+
+<script src="app.js"></script>
+</body>
+</html>
