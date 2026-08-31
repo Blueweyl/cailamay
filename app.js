@@ -11,7 +11,7 @@
 // onReserve() below checks for that and falls back to the old
 // client-only "preview" behavior instead of fetching an endpoint that
 // doesn't exist yet.
-const RESERVE_ENDPOINT = '';
+const RESERVE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzfNDHtt_nu8dAbrBd9qZlhKXK5jQf-PF7rV-Ql4112WOlJsq5ZzjkT2vfssmc-XUaJ/exec';
 
 class CailamayPage {
   constructor() {
