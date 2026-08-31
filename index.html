@@ -38,6 +38,44 @@
   .btn-ghost:hover:not(:disabled) { border-color: #D8945B; color: #D8945B; }
   .btn-primary:hover { background: #D8945B; color: #101615; }
   .btn-sound:hover { border-color: #D8945B; color: #D8945B; }
+
+  /* Story photo chapters (Arrival -> Pool): one full-viewport photo per
+     scene, edge to edge, restrained text overlay. Mirrors the same block
+     in the Cailamay.dc.html prototype - see initStoryPhotos() in app.js
+     for the fade/scale-in reveal and paintScroll() for the shared data-px
+     parallax already used by #gallery. */
+  .story-photo { position: relative; width: 100%; min-height: 100svh; overflow: hidden; background: #101615; }
+  .story-photo > picture { position: absolute; inset: -3%; display: block; }
+  .story-photo > picture > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transform: scale(1); transition: transform 1500ms cubic-bezier(0.16,1,0.3,1); }
+  .story-photo__scrim { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(16,22,21,0) 0%, rgba(16,22,21,0.08) 55%, rgba(16,22,21,0.82) 100%); }
+  .story-photo__content { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 42px 9vh; pointer-events: none; }
+  .story-photo__eyebrow { display: block; font-size: 10.5px; letter-spacing: 0.36em; color: #D8945B; margin-bottom: 18px; opacity: 1; transform: none; transition: opacity 900ms ease, transform 900ms ease; }
+  .story-photo__line { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-style: italic; font-size: clamp(22px,2.6vw,34px); line-height: 1.35; color: #F6F2EB; margin: 0; max-width: 640px; text-wrap: pretty; opacity: 1; transform: none; transition: opacity 900ms ease 90ms, transform 900ms ease 90ms; }
+  .story-photo--pending > picture > img { transform: scale(1.02); }
+  .story-photo--pending .story-photo__eyebrow, .story-photo--pending .story-photo__line { opacity: 0; transform: translateY(16px); }
+
+  .story-photo--arrival > picture > img { object-position: 50% 40%; }
+  .story-photo--living > picture > img { object-position: 50% 46%; }
+  .story-photo--dining > picture > img { object-position: 50% 52%; }
+  .story-photo--bedroom > picture > img { object-position: 45% 55%; }
+  .story-photo--bath > picture > img { object-position: 50% 52%; }
+  .story-photo--pool > picture > img { object-position: 42% 55%; }
+
+  @media (max-width: 780px) {
+    .story-photo__content { padding: 0 20px 7vh; }
+    .story-photo--arrival > picture > img { object-position: 56% 38%; }
+    .story-photo--living > picture > img { object-position: 64% 64%; }
+    .story-photo--dining > picture > img { object-position: 50% 60%; }
+    .story-photo--bedroom > picture > img { object-position: 62% 62%; }
+    .story-photo--bath > picture > img { object-position: 50% 56%; }
+    .story-photo--pool > picture > img { object-position: 36% 62%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story-photo > picture > img, .story-photo__eyebrow, .story-photo__line { transition: none !important; }
+    .story-photo--pending > picture > img { transform: scale(1); }
+    .story-photo--pending .story-photo__eyebrow, .story-photo--pending .story-photo__line { opacity: 1; transform: none; }
+  }
 </style>
 </head>
 <body>
@@ -151,50 +189,88 @@
 
 </div>
 
-<section id="tour" style="position:relative;background:#101615;padding:14vh 42px">
-  <div style="max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:9vh">
-    <div data-resp="tour" style="display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:center">
-      <div style="position:relative;aspect-ratio:4/3"><img src="images/a.jpg" alt="Arrival — the gate, the path in, first glimpse of the sea" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div>
-      <div>
-        <div style="font-size:10px;letter-spacing:0.34em;color:#A9825A;margin-bottom:14px">ARRIVAL</div>
-        <p style="font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(20px,2.2vw,28px);line-height:1.3;color:#F6F2EB;margin:0">The gate closes behind you, and the sea opens up ahead.</p>
-      </div>
-    </div>
-    <div data-resp="tour" style="display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:center">
-      <div style="position:relative;aspect-ratio:4/3"><img src="images/g.jpg" alt="Living room — retractable glass walls open to the sea" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div>
-      <div>
-        <div style="font-size:10px;letter-spacing:0.34em;color:#A9825A;margin-bottom:14px">LIVING</div>
-        <p style="font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(20px,2.2vw,28px);line-height:1.3;color:#F6F2EB;margin:0">One room, glass on two sides, nothing between the sofa and the tide.</p>
-      </div>
-    </div>
-    <div data-resp="tour" style="display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:center">
-      <div style="position:relative;aspect-ratio:4/3"><img src="images/d.jpg" alt="Dining pavilion, candlelight, table set for two" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div>
-      <div>
-        <div style="font-size:10px;letter-spacing:0.34em;color:#A9825A;margin-bottom:14px">DINING</div>
-        <p style="font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(20px,2.2vw,28px);line-height:1.3;color:#F6F2EB;margin:0">A table for two, set wherever the light is best that day.</p>
-      </div>
-    </div>
-    <div data-resp="tour" style="display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:center">
-      <div style="position:relative;aspect-ratio:4/3"><img src="images/bd.jpg" alt="Bedroom, curtains open, blue hour" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div>
-      <div>
-        <div style="font-size:10px;letter-spacing:0.34em;color:#A9825A;margin-bottom:14px">BEDROOM</div>
-        <p style="font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(20px,2.2vw,28px);line-height:1.3;color:#F6F2EB;margin:0">Windows left open on purpose. The sea is the alarm.</p>
-      </div>
-    </div>
-    <div data-resp="tour" style="display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:center">
-      <div style="position:relative;aspect-ratio:4/3"><img src="images/ba.jpg" alt="Open-air bath — sculptural tub, bronze fixtures" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div>
-      <div>
-        <div style="font-size:10px;letter-spacing:0.34em;color:#A9825A;margin-bottom:14px">BATH</div>
-        <p style="font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(20px,2.2vw,28px);line-height:1.3;color:#F6F2EB;margin:0">Stone, steam, and a view that stays with you after you dry off.</p>
-      </div>
-    </div>
-    <div data-resp="tour" style="display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:center">
-      <div style="position:relative;aspect-ratio:4/3"><img src="images/p.jpg" alt="Infinity pool meeting the sea" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" /></div>
-      <div>
-        <div style="font-size:10px;letter-spacing:0.34em;color:#A9825A;margin-bottom:14px">POOL</div>
-        <p style="font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;font-size:clamp(20px,2.2vw,28px);line-height:1.3;color:#F6F2EB;margin:0">Water that seems to disappear into the horizon.</p>
-      </div>
-    </div>
+<!--
+  Six full-viewport photo chapters (Arrival -> Pool), mirrored from the
+  same block in the Cailamay.dc.html prototype - see that file's own
+  comment at this point for the full rationale. Sources:
+  images/story/{key}-{width}.{format}, generated via ffmpeg from
+  images/{a,g,d,bd,ba,p}.jpg (1600x893, the highest resolution available).
+-->
+<section id="story-arrival" class="story-photo story-photo--arrival">
+  <picture data-px="0.35">
+    <source type="image/avif" srcset="images/story/arrival-800.avif?v=1 800w, images/story/arrival-1200.avif?v=1 1200w, images/story/arrival-1600.avif?v=1 1600w" sizes="100vw" />
+    <source type="image/webp" srcset="images/story/arrival-800.webp?v=1 800w, images/story/arrival-1200.webp?v=1 1200w, images/story/arrival-1600.webp?v=1 1600w" sizes="100vw" />
+    <img src="images/story/arrival-1600.jpg?v=1" srcset="images/story/arrival-800.jpg?v=1 800w, images/story/arrival-1200.jpg?v=1 1200w, images/story/arrival-1600.jpg?v=1 1600w" sizes="100vw" width="1600" height="893" alt="Stone walkway leading to the villa's entrance, framed by a reflecting pool and jungle greenery" loading="lazy" decoding="async" />
+  </picture>
+  <div class="story-photo__scrim" aria-hidden="true"></div>
+  <div class="story-photo__content">
+    <span class="story-photo__eyebrow">ARRIVAL</span>
+    <p class="story-photo__line">The gate closes behind you, and the sea opens up ahead.</p>
+  </div>
+</section>
+
+<section id="story-living" class="story-photo story-photo--living">
+  <picture data-px="0.35">
+    <source type="image/avif" srcset="images/story/living-800.avif?v=1 800w, images/story/living-1200.avif?v=1 1200w, images/story/living-1600.avif?v=1 1600w" sizes="100vw" />
+    <source type="image/webp" srcset="images/story/living-800.webp?v=1 800w, images/story/living-1200.webp?v=1 1200w, images/story/living-1600.webp?v=1 1600w" sizes="100vw" />
+    <img src="images/story/living-1600.jpg?v=1" srcset="images/story/living-800.jpg?v=1 800w, images/story/living-1200.jpg?v=1 1200w, images/story/living-1600.jpg?v=1 1600w" sizes="100vw" width="1600" height="893" alt="Open living room with retractable glass walls facing the sea at sunset" loading="lazy" decoding="async" />
+  </picture>
+  <div class="story-photo__scrim" aria-hidden="true"></div>
+  <div class="story-photo__content">
+    <span class="story-photo__eyebrow">LIVING</span>
+    <p class="story-photo__line">One room, glass on two sides, nothing between the sofa and the tide.</p>
+  </div>
+</section>
+
+<section id="story-dining" class="story-photo story-photo--dining">
+  <picture data-px="0.35">
+    <source type="image/avif" srcset="images/story/dining-800.avif?v=1 800w, images/story/dining-1200.avif?v=1 1200w, images/story/dining-1600.avif?v=1 1600w" sizes="100vw" />
+    <source type="image/webp" srcset="images/story/dining-800.webp?v=1 800w, images/story/dining-1200.webp?v=1 1200w, images/story/dining-1600.webp?v=1 1600w" sizes="100vw" />
+    <img src="images/story/dining-1600.jpg?v=1" srcset="images/story/dining-800.jpg?v=1 800w, images/story/dining-1200.jpg?v=1 1200w, images/story/dining-1600.jpg?v=1 1600w" sizes="100vw" width="1600" height="893" alt="A private overwater dining pavilion set for two, facing limestone islands at dusk" loading="lazy" decoding="async" />
+  </picture>
+  <div class="story-photo__scrim" aria-hidden="true"></div>
+  <div class="story-photo__content">
+    <span class="story-photo__eyebrow">DINING</span>
+    <p class="story-photo__line">A table for two, set wherever the light is best that day.</p>
+  </div>
+</section>
+
+<section id="story-bedroom" class="story-photo story-photo--bedroom">
+  <picture data-px="0.35">
+    <source type="image/avif" srcset="images/story/bedroom-800.avif?v=1 800w, images/story/bedroom-1200.avif?v=1 1200w, images/story/bedroom-1600.avif?v=1 1600w" sizes="100vw" />
+    <source type="image/webp" srcset="images/story/bedroom-800.webp?v=1 800w, images/story/bedroom-1200.webp?v=1 1200w, images/story/bedroom-1600.webp?v=1 1600w" sizes="100vw" />
+    <img src="images/story/bedroom-1600.jpg?v=1" srcset="images/story/bedroom-800.jpg?v=1 800w, images/story/bedroom-1200.jpg?v=1 1200w, images/story/bedroom-1600.jpg?v=1 1600w" sizes="100vw" width="1600" height="893" alt="Bedroom with floor-to-ceiling windows open to the sea at blue hour" loading="lazy" decoding="async" />
+  </picture>
+  <div class="story-photo__scrim" aria-hidden="true"></div>
+  <div class="story-photo__content">
+    <span class="story-photo__eyebrow">BEDROOM</span>
+    <p class="story-photo__line">Windows left open on purpose. The sea is the alarm.</p>
+  </div>
+</section>
+
+<section id="story-bath" class="story-photo story-photo--bath">
+  <picture data-px="0.35">
+    <source type="image/avif" srcset="images/story/bath-800.avif?v=1 800w, images/story/bath-1200.avif?v=1 1200w, images/story/bath-1600.avif?v=1 1600w" sizes="100vw" />
+    <source type="image/webp" srcset="images/story/bath-800.webp?v=1 800w, images/story/bath-1200.webp?v=1 1200w, images/story/bath-1600.webp?v=1 1600w" sizes="100vw" />
+    <img src="images/story/bath-1600.jpg?v=1" srcset="images/story/bath-800.jpg?v=1 800w, images/story/bath-1200.jpg?v=1 1200w, images/story/bath-1600.jpg?v=1 1600w" sizes="100vw" width="1600" height="893" alt="Open-air stone bathing courtyard with a framed view of the sea" loading="lazy" decoding="async" />
+  </picture>
+  <div class="story-photo__scrim" aria-hidden="true"></div>
+  <div class="story-photo__content">
+    <span class="story-photo__eyebrow">BATH</span>
+    <p class="story-photo__line">Stone, steam, and a view that stays with you after you dry off.</p>
+  </div>
+</section>
+
+<section id="story-pool" class="story-photo story-photo--pool">
+  <picture data-px="0.35">
+    <source type="image/avif" srcset="images/story/pool-800.avif?v=1 800w, images/story/pool-1200.avif?v=1 1200w, images/story/pool-1600.avif?v=1 1600w" sizes="100vw" />
+    <source type="image/webp" srcset="images/story/pool-800.webp?v=1 800w, images/story/pool-1200.webp?v=1 1200w, images/story/pool-1600.webp?v=1 1600w" sizes="100vw" />
+    <img src="images/story/pool-1600.jpg?v=1" srcset="images/story/pool-800.jpg?v=1 800w, images/story/pool-1200.jpg?v=1 1200w, images/story/pool-1600.jpg?v=1 1600w" sizes="100vw" width="1600" height="893" alt="The villa's infinity pool meeting the sea beneath limestone cliffs at dusk" loading="lazy" decoding="async" />
+  </picture>
+  <div class="story-photo__scrim" aria-hidden="true"></div>
+  <div class="story-photo__content">
+    <span class="story-photo__eyebrow">POOL</span>
+    <p class="story-photo__line">Water that seems to disappear into the horizon.</p>
   </div>
 </section>
 

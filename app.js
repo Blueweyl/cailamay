@@ -544,7 +544,6 @@ class CailamayPage {
     document.querySelectorAll('[data-resp]').forEach((el) => {
       const kind = el.dataset.resp;
       if (kind === 'two') el.style.gridTemplateColumns = narrow ? 'minmax(0,1fr)' : 'minmax(0,1fr) minmax(0,1fr)';
-      if (kind === 'tour') el.style.gridTemplateColumns = narrow ? 'minmax(0,1fr)' : 'minmax(0,340px) minmax(0,1fr)';
       if (kind === 'reserve') el.style.gridTemplateColumns = narrow ? 'minmax(0,1fr)' : 'minmax(0,1fr) minmax(0,420px)';
       if (kind === 'three') el.style.gridTemplateColumns = narrow ? 'minmax(0,1fr)' : 'repeat(3,minmax(0,1fr))';
       if (kind === 'footer') el.style.gridTemplateColumns = narrow ? 'minmax(0,1fr)' : (mid ? 'repeat(2,minmax(0,1fr))' : 'minmax(0,2fr) repeat(3,minmax(0,1fr))');
@@ -558,7 +557,7 @@ class CailamayPage {
     });
     const pad = narrow ? '20px' : '42px';
     this.navPadX = pad;
-    document.querySelectorAll('[data-resppad-x], #tour, #stay, #experience > div, #reserve, footer, #gallery > div, #gallery [style*="grid-template-columns:repeat(12"]').forEach((el) => { el.style.paddingLeft = pad; el.style.paddingRight = pad; });
+    document.querySelectorAll('[data-resppad-x], #stay, #experience > div, #reserve, footer, #gallery > div, #gallery [style*="grid-template-columns:repeat(12"]').forEach((el) => { el.style.paddingLeft = pad; el.style.paddingRight = pad; });
     if (this.nav) this.nav.style.paddingLeft = pad;
     if (this.nav) this.nav.style.paddingRight = pad;
     const menu = document.querySelector('[data-navmenu]');
@@ -567,6 +566,26 @@ class CailamayPage {
     const toggle = document.querySelector('[data-navtoggle]');
     if (toggle) toggle.style.display = belowMobileBreak ? 'inline-flex' : 'none';
     if (!belowMobileBreak && this.state.mobileNavOpen) this.setMobileNav(false);
+  }
+
+  // Fade/scale-in reveal for the six full-viewport story-photo chapters.
+  // Cosmetic only - the CSS default for .story-photo__eyebrow/__line/img is
+  // fully visible at scale(1); only .story-photo--pending (added below)
+  // hides/scales them, so a page where this never runs still renders every
+  // chapter correctly.
+  initStoryPhotos() {
+    const sections = Array.from(document.querySelectorAll('.story-photo'));
+    if (!sections.length) return;
+    if (this.reduced || typeof IntersectionObserver !== 'function') return;
+    sections.forEach((el) => el.classList.add('story-photo--pending'));
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.remove('story-photo--pending');
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.2, rootMargin: '0px 0px -10% 0px' });
+    sections.forEach((el) => observer.observe(el));
   }
 
   initCinema() {
@@ -621,6 +640,7 @@ class CailamayPage {
     this.initReserveForm();
     this.setupMobileNav();
     this.initSoundToggle();
+    this.initStoryPhotos();
   }
 }
 
